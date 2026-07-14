@@ -11,6 +11,7 @@ import { CarDetails } from "./pages/CarDetails";
 import { About } from "./pages/About";
 import { ROUTE_PATHS } from "./constants/routes";
 import { GlobalStyle } from "./theme/GlobalStyles";
+import { Dashboard } from "./pages/Dashboard";
 import {
   darkTheme,
   lightTheme,
@@ -36,6 +37,10 @@ function App() {
         onThemeToggle={toggleTheme}
       >
         <Routes>
+          <Route
+  path={ROUTE_PATHS.DASHBOARD}
+  element={<Dashboard />}
+/>
           <Route path={ROUTE_PATHS.OWNERS} element={<Owners />} />
           <Route
             path={ROUTE_PATHS.ADD_OWNER}
