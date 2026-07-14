@@ -23,11 +23,11 @@ export const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  min-height: 40px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   background-color: ${({ theme }) => theme.colors.primary[50]};
-  font-size: 22px;
+  font-size: 24px;
 `;
 
 export const CardTitle = styled.h2`

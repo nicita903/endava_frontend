@@ -152,6 +152,7 @@ export const useCarsData = () => {
     makeOptions,
     modelOptions,
     pagination,
+    refreshCars: retryCarsRequest,
     retryCarsRequest,
   };
 };
