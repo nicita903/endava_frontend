@@ -70,7 +70,7 @@ export const validateCarForm = (
   }
 
   if (!formValues.owner_id.trim()) {
-    nextErrors.owner_id = 'Owner ID is required.';
+    nextErrors.owner_id = 'Owner is required.';
   }
 
   return nextErrors;
