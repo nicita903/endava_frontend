@@ -16,6 +16,11 @@ export const Layout = ({
     themeMode === 'dark' ? 'Light mode' : 'Dark mode';
   const navItems = [
     {
+      label: 'Dashboard',
+      href: ROUTE_PATHS.DASHBOARD,
+      testId: 'dashboard',
+    },
+    {
       label: 'Owners',
       href: ROUTE_PATHS.OWNERS,
       testId: 'owners',
