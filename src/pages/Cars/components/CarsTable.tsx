@@ -3,6 +3,7 @@ import { Button } from '../../../components/Button';
 import { Table } from '../../../components/Table';
 import type { TablePaginationState } from '../../../components/Table/types';
 import type { SelectOption } from '../../../types/common';
+import { TableActions } from '../styles';
 
 import {
   CAR_PAGE_SIZE_OPTIONS,
@@ -29,6 +30,7 @@ interface CarsTableProps {
   ) => void;
   onPaginationChange: (pagination: TablePaginationState) => void;
   onRetry: () => void;
+  onDeleteCar: (car: Car) => void;
   onViewCar: (car: Car) => void;
 }
 
@@ -47,6 +49,7 @@ export const CarsTable = ({
   pagination,
   onFilterChange,
   onPaginationChange,
+  onDeleteCar,
   onRetry,
   onViewCar,
 }: CarsTableProps) => {
@@ -54,18 +57,32 @@ export const CarsTable = ({
     ...car,
     ownerName: car.owner.name,
     actions: (
-      <Button
-        type="button"
-        variant="secondary"
-        data-testid={`view-car-${car.id}`}
-        onClick={(event) => {
-          event.stopPropagation();
-          onViewCar(car);
-        }}
-      >
-        View
-      </Button>
-    ),
+  <TableActions>
+    <Button
+      type="button"
+      variant="secondary"
+      data-testid={`view-car-${car.id}`}
+      onClick={(event) => {
+        event.stopPropagation();
+        onViewCar(car);
+      }}
+    >
+      View
+    </Button>
+
+    <Button
+      type="button"
+      variant="secondary"
+      data-testid={`delete-car-${car.id}`}
+      onClick={(event) => {
+        event.stopPropagation();
+        onDeleteCar(car);
+      }}
+    >
+      Delete
+    </Button>
+  </TableActions>
+),
   }));
 
   return (

@@ -29,6 +29,8 @@ interface CarDetailsFormProps {
   onBack: () => void;
   onFieldChange: FieldChangeHandler<CarFormValues>;
   onSubmit: FormEventHandler<HTMLFormElement>;
+  ownerFieldOptions: SelectOption[];
+  isLoadingOwners: boolean;
 }
 
 /**
@@ -42,6 +44,8 @@ export const CarDetailsForm = ({
   isLoadingCategories,
   isSubmissionInProgress,
   isViewMode,
+  ownerFieldOptions,
+  isLoadingOwners,
   onBack,
   onFieldChange,
   onSubmit,
@@ -51,16 +55,29 @@ export const CarDetailsForm = ({
     onSubmit={onSubmit}
     noValidate
   >
-    <Input
-      name="owner_id"
-      label="Owner ID"
-      value={formValues.owner_id}
-      placeholder={CAR_FORM_PLACEHOLDERS.owner_id}
-      disabled
-      required
-      error={errors.owner_id}
-      onChange={(value) => onFieldChange('owner_id', value)}
-    />
+    {isViewMode ? (
+  <Input
+    name="owner_id"
+    label="Owner ID"
+    value={formValues.owner_id}
+    placeholder={CAR_FORM_PLACEHOLDERS.owner_id}
+    disabled
+    required
+    error={errors.owner_id}
+    onChange={(value) => onFieldChange('owner_id', value)}
+  />
+) : (
+  <Dropdown
+    name="owner_id"
+    label="Owner"
+    value={formValues.owner_id}
+    options={ownerFieldOptions}
+    disabled={isSubmissionInProgress || isLoadingOwners}
+    required
+    error={errors.owner_id}
+    onChange={(value) => onFieldChange('owner_id', value)}
+  />
+)}
 
     <Input
       name="vin"

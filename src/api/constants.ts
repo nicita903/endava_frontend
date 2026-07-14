@@ -36,4 +36,5 @@ export const API_ERROR_MESSAGES = {
   OWNER_CARS_UNAVAILABLE_TITLE: 'Owner cars unavailable',
   OWNER_CREATE_ERROR_TITLE: 'Could not create owner',
   OWNER_NOT_FOUND_TITLE: 'Owner not found',
+  DELETE_CAR: 'Could not delete car. Please try again.',
 } as const;

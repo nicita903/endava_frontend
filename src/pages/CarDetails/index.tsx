@@ -29,6 +29,7 @@ import { PolicyPanelSection } from './components/PolicyPanelSection';
 import { useCarForm } from './hooks/useCarForm';
 import { useClaimForm } from './hooks/useClaimForm';
 import { usePolicyForm } from './hooks/usePolicyForm';
+import { getOwners } from '../../api/owners/getOwners';
 import {
   CarDetailsErrorType,
   CarDetailsModalType,
@@ -88,8 +89,20 @@ export const CarDetails = () => {
   const [categoryOptions, setCategoryOptions] = useState<
     SelectOption[]
   >([EMPTY_CATEGORY_OPTION]);
+  
   const [isLoadingCategories, setIsLoadingCategories] =
     useState(!isViewMode);
+  const [ownerOptions, setOwnerOptions] = useState<
+  SelectOption[]
+>([
+  {
+    label: 'Select owner',
+    value: '',
+  },
+]);
+
+const [isLoadingOwners, setIsLoadingOwners] =
+  useState(!isViewMode);
   const [isLoadingData, setIsLoadingData] = useState(isViewMode);
   const [hasActivePolicy, setHasActivePolicy] = useState(false);
   const [historyItems, setHistoryItems] = useState<
@@ -178,7 +191,7 @@ export const CarDetails = () => {
       isCurrentRequest = false;
     };
   }, [isViewMode]);
-
+  
   useEffect(() => {
     if (!isViewMode || !carId) {
       return;
@@ -263,12 +276,62 @@ export const CarDetails = () => {
       }
     };
 
+    
+
     fetchData();
 
     return () => {
       isCurrentRequest = false;
     };
   }, [carId, isViewMode, setFormValues]);
+
+  useEffect(() => {
+  if (isViewMode) {
+    return;
+  }
+
+  let isCurrentRequest = true;
+
+  const fetchOwners = async () => {
+    setIsLoadingOwners(true);
+
+    try {
+      const response = await getOwners({
+        page: 1,
+        per_page: 100,
+      });
+
+      if (!isCurrentRequest) {
+        return;
+      }
+
+      setOwnerOptions([
+        {
+          label: 'Select owner',
+          value: '',
+        },
+        ...response.items.map((owner) => ({
+          label: owner.email
+            ? `${owner.name} (${owner.email})`
+            : owner.name,
+          value: owner.id,
+        })),
+      ]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      if (isCurrentRequest) {
+        setIsLoadingOwners(false);
+      }
+    }
+  };
+
+  fetchOwners();
+
+  return () => {
+    isCurrentRequest = false;
+  };
+}, [isViewMode]);
 
   /**
    * Closes the add-policy modal unless a submission is running.
@@ -479,6 +542,7 @@ export const CarDetails = () => {
     formValues.category,
     categoryOptions
   );
+  
   const modalContent =
     modalType === CarDetailsModalType.AddPolicy
       ? {
@@ -593,6 +657,8 @@ export const CarDetails = () => {
             onFieldChange={updateField}
             onSubmit={handleSubmit}
             onBack={goBack}
+            ownerFieldOptions={ownerOptions}
+            isLoadingOwners={isLoadingOwners}
           />
         </>
       )}

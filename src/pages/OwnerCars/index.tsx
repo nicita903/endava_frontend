@@ -12,9 +12,11 @@ import { getCars } from '../../api/cars/getCars';
 import type { Car } from '../../api/cars/types';
 import { getOwner } from '../../api/owners/getOwner';
 import type { OwnerSummary } from '../../api/owners/types';
+import { deleteCar } from '../../api/cars/deleteCar';
+import { Modal } from '../../components/Modal';
 
 import { carColumns } from './constants';
-import { Actions, Wrapper } from './styles';
+import { Actions, TableActions, Wrapper } from './styles';
 import type { CarTableRow } from './types';
 
 export const OwnerCars = () => {
@@ -25,6 +27,55 @@ export const OwnerCars = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loadError, setLoadError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [carToDelete, setCarToDelete] = useState<Car | null>(null);
+const [isDeleting, setIsDeleting] = useState(false);
+const [deleteError, setDeleteError] = useState('');
+
+const openDeleteModal = (car: Car) => {
+  setDeleteError('');
+  setCarToDelete(car);
+};
+
+const closeDeleteModal = () => {
+  if (isDeleting) {
+    return;
+  }
+
+  setCarToDelete(null);
+  setDeleteError('');
+};
+
+const confirmDeleteCar = async () => {
+  if (!carToDelete) {
+    return;
+  }
+
+  try {
+    setIsDeleting(true);
+    setDeleteError('');
+
+    await deleteCar(carToDelete.id);
+
+    setCars((currentCars) =>
+      currentCars.filter(
+        (car) => car.id !== carToDelete.id
+      )
+    );
+
+    setCarToDelete(null);
+  } catch (error) {
+    console.error(error);
+
+    setDeleteError(
+      getApiErrorMessage(
+        error,
+        API_ERROR_MESSAGES.DELETE_CAR
+      )
+    );
+  } finally {
+    setIsDeleting(false);
+  }
+};
 
   useEffect(() => {
     let isCurrentRequest = true;
@@ -134,15 +185,26 @@ export const OwnerCars = () => {
   const tableData: CarTableRow[] = cars.map((car) => ({
     ...car,
     actions: (
-      <Button
-        type="button"
-        variant="secondary"
-        data-testid={`view-owner-car-${car.id}`}
-        onClick={() => navigate(ROUTES.VIEW_CAR(car.id))}
-      >
-        View more
-      </Button>
-    ),
+  <TableActions>
+    <Button
+      type="button"
+      variant="secondary"
+      data-testid={`view-owner-car-${car.id}`}
+      onClick={() => navigate(ROUTES.VIEW_CAR(car.id))}
+    >
+      View more
+    </Button>
+
+    <Button
+      type="button"
+      variant="secondary"
+      data-testid={`delete-owner-car-${car.id}`}
+      onClick={() => openDeleteModal(car)}
+    >
+      Delete
+    </Button>
+  </TableActions>
+),
   }));
 
   return (
@@ -183,6 +245,28 @@ export const OwnerCars = () => {
         data={tableData}
         emptyMessage="No cars found for this owner."
       />
+      <Modal
+  isOpen={!!carToDelete}
+  data-testid="delete-owner-car-modal"
+  title="Delete car"
+  description={
+    deleteError ||
+    `Are you sure you want to delete ${
+      carToDelete?.vin ?? 'this car'
+    }?`
+  }
+  primaryCta={{
+    label: isDeleting ? 'Deleting...' : 'Yes',
+    disabled: isDeleting,
+    onClick: confirmDeleteCar,
+  }}
+  secondaryCta={{
+    label: 'Cancel',
+    disabled: isDeleting,
+    onClick: closeDeleteModal,
+  }}
+  onClose={closeDeleteModal}
+/>
     </div>
   );
 };
