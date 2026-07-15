@@ -1,8 +1,8 @@
-import { Table } from '../../../components/Table';
+import { Table } from "../../../components/Table";
 
-import { HISTORY_COLUMNS } from '../constants';
-import { HistoryTableWrapper } from '../styles';
-import type { HistoryTableRow } from '../types';
+import { HISTORY_COLUMNS } from "../constants";
+import { HistoryTableWrapper } from "../styles";
+import type { HistoryTableRow } from "../types";
 
 interface HistoryModalContentProps {
   data: HistoryTableRow[];
@@ -11,9 +11,7 @@ interface HistoryModalContentProps {
 /**
  * Renders the car policy and claim history table for the history modal.
  */
-export const HistoryModalContent = ({
-  data,
-}: HistoryModalContentProps) => (
+export const HistoryModalContent = ({ data }: HistoryModalContentProps) => (
   <HistoryTableWrapper>
     <Table
       columns={HISTORY_COLUMNS}

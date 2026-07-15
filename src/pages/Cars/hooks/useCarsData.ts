@@ -1,40 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { getCars } from '../../../api/cars/getCars';
-import type { Car, CarCategory } from '../../../api/cars/types';
-import { API_ERROR_MESSAGES } from '../../../api/constants';
-import { getApiErrorMessage } from '../../../api/errors';
-import { usePagination } from '../../../hooks/usePagination';
-import type { SelectOption } from '../../../types/common';
+import { getCars } from "../../../api/cars/getCars";
+import type { Car, CarCategory } from "../../../api/cars/types";
+import { API_ERROR_MESSAGES } from "../../../api/constants";
+import { getApiErrorMessage } from "../../../api/errors";
+import { usePagination } from "../../../hooks/usePagination";
+import type { SelectOption } from "../../../types/common";
 
-import { DEFAULT_CARS_FILTERS } from '../constants';
-import type { CarsFilters } from '../types';
-import { getCarOptions } from '../utils';
+import { DEFAULT_CARS_FILTERS } from "../constants";
+import type { CarsFilters } from "../types";
+import { getCarOptions } from "../utils";
 
 /**
  * Owns Cars page list data, filters, pagination, and loading state.
  */
 export const useCarsData = () => {
   const [cars, setCars] = useState<Car[]>([]);
-  const [filters, setFilters] = useState<CarsFilters>(
-    DEFAULT_CARS_FILTERS
-  );
-  const [makeOptions, setMakeOptions] = useState<SelectOption[]>(
-    []
-  );
-  const [modelOptions, setModelOptions] = useState<SelectOption[]>(
-    []
-  );
-  const [categoryOptions, setCategoryOptions] = useState<
-    SelectOption[]
-  >([]);
-  const {
-    pagination,
-    resetPagination,
-    updatePagination,
-  } = usePagination();
+  const [filters, setFilters] = useState<CarsFilters>(DEFAULT_CARS_FILTERS);
+  const [makeOptions, setMakeOptions] = useState<SelectOption[]>([]);
+  const [modelOptions, setModelOptions] = useState<SelectOption[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<SelectOption[]>([]);
+  const { pagination, resetPagination, updatePagination } = usePagination();
   const [hasNextCarsPage, setHasNextCarsPage] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [retryRequestKey, setRetryRequestKey] = useState(0);
 
@@ -46,7 +34,7 @@ export const useCarsData = () => {
      */
     const fetchCarsData = async () => {
       setIsLoading(true);
-      setErrorMessage('');
+      setErrorMessage("");
 
       try {
         const carsResponse = await getCars({
@@ -68,17 +56,17 @@ export const useCarsData = () => {
         setMakeOptions((previousOptions) =>
           previousOptions.length
             ? previousOptions
-            : getCarOptions(carsData, 'make')
+            : getCarOptions(carsData, "make"),
         );
         setModelOptions((previousOptions) =>
           previousOptions.length
             ? previousOptions
-            : getCarOptions(carsData, 'model')
+            : getCarOptions(carsData, "model"),
         );
         setCategoryOptions((previousOptions) =>
           previousOptions.length
             ? previousOptions
-            : getCarOptions(carsData, 'category')
+            : getCarOptions(carsData, "category"),
         );
       } catch (error) {
         console.error(error);
@@ -89,9 +77,7 @@ export const useCarsData = () => {
 
         setCars([]);
         setHasNextCarsPage(false);
-        setErrorMessage(
-          getApiErrorMessage(error, API_ERROR_MESSAGES.GET_CARS)
-        );
+        setErrorMessage(getApiErrorMessage(error, API_ERROR_MESSAGES.GET_CARS));
       } finally {
         if (isCurrentRequest) {
           setIsLoading(false);
@@ -118,18 +104,14 @@ export const useCarsData = () => {
    */
   const handleFilterChange = (
     filterName: keyof CarsFilters,
-    value: string | string[]
+    value: string | string[],
   ) => {
-    const nextValue = Array.isArray(value)
-      ? (value[0] ?? '')
-      : value;
+    const nextValue = Array.isArray(value) ? (value[0] ?? "") : value;
 
     setFilters((previousFilters) => ({
       ...previousFilters,
       [filterName]:
-        filterName === 'category'
-          ? (nextValue as CarCategory | '')
-          : nextValue,
+        filterName === "category" ? (nextValue as CarCategory | "") : nextValue,
     }));
     resetPagination();
   };

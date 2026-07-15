@@ -1,4 +1,4 @@
-import { Button } from '../../../components/Button';
+import { Button } from "../../../components/Button";
 
 import {
   PolicyActions,
@@ -7,7 +7,7 @@ import {
   PolicyPanelTitle,
   PolicyStatus,
   PolicySummary,
-} from '../styles';
+} from "../styles";
 
 interface PolicyPanelSectionProps {
   hasActivePolicy: boolean;
@@ -32,13 +32,9 @@ export const PolicyPanelSection = ({
   <PolicyPanel aria-labelledby={policyTitleId}>
     <PolicyPanelHeader>
       <PolicySummary>
-        <PolicyPanelTitle id={policyTitleId}>
-          Policy
-        </PolicyPanelTitle>
+        <PolicyPanelTitle id={policyTitleId}>Policy</PolicyPanelTitle>
         <PolicyStatus $active={hasActivePolicy}>
-          {hasActivePolicy
-            ? 'Active policy available'
-            : 'No active policy'}
+          {hasActivePolicy ? "Active policy available" : "No active policy"}
         </PolicyStatus>
       </PolicySummary>
       <PolicyActions>
@@ -49,8 +45,8 @@ export const PolicyPanelSection = ({
           disabled={!hasActivePolicy}
           title={
             hasActivePolicy
-              ? 'Add claim'
-              : 'Add claim requires an active policy'
+              ? "Add claim"
+              : "Add claim requires an active policy"
           }
           onClick={onAddClaim}
         >
@@ -61,11 +57,7 @@ export const PolicyPanelSection = ({
           variant="secondary"
           data-testid="see-history-button"
           disabled={!hasHistoryItems}
-          title={
-            hasHistoryItems
-              ? 'See history'
-              : 'No history available'
-          }
+          title={hasHistoryItems ? "See history" : "No history available"}
           onClick={onSeeHistory}
         >
           See history
@@ -76,8 +68,8 @@ export const PolicyPanelSection = ({
           disabled={hasActivePolicy}
           title={
             hasActivePolicy
-              ? 'A policy already exists for this car'
-              : 'Add policy'
+              ? "A policy already exists for this car"
+              : "Add policy"
           }
           onClick={onAddPolicy}
         >

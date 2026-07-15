@@ -1,15 +1,12 @@
-import type { FormEventHandler } from 'react';
+import type { FormEventHandler } from "react";
 
-import { CalendarInput } from '../../../components/CalendarInput';
-import { Input } from '../../../components/Input';
+import { CalendarInput } from "../../../components/CalendarInput";
+import { Input } from "../../../components/Input";
 
-import { CLAIM_FORM_PLACEHOLDERS } from '../constants';
-import { ModalForm, SubmitError } from '../styles';
-import type {
-  ClaimFormErrors,
-  ClaimFormValues,
-} from '../types';
-import type { FieldChangeHandler } from './types';
+import { CLAIM_FORM_PLACEHOLDERS } from "../constants";
+import { ModalForm, SubmitError } from "../styles";
+import type { ClaimFormErrors, ClaimFormValues } from "../types";
+import type { FieldChangeHandler } from "./types";
 
 interface ClaimModalFormProps {
   backendError: string;
@@ -46,7 +43,7 @@ export const ClaimModalForm = ({
       disabled={isDisabled}
       required
       error={errors.claim_date}
-      onChange={(value) => onFieldChange('claim_date', value)}
+      onChange={(value) => onFieldChange("claim_date", value)}
     />
     <Input
       name="description"
@@ -56,7 +53,7 @@ export const ClaimModalForm = ({
       disabled={isDisabled}
       required
       error={errors.description}
-      onChange={(value) => onFieldChange('description', value)}
+      onChange={(value) => onFieldChange("description", value)}
     />
     <Input
       name="amount"
@@ -67,7 +64,7 @@ export const ClaimModalForm = ({
       disabled={isDisabled}
       required
       error={errors.amount}
-      onChange={(value) => onFieldChange('amount', value)}
+      onChange={(value) => onFieldChange("amount", value)}
     />
     {backendError && (
       <SubmitError data-testid="claim-backend-error">

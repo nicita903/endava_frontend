@@ -1,33 +1,51 @@
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  IconWrapper,
   NavigationLink,
+  SummaryCardContainer,
+  SummaryDescription,
+  SummaryFooter,
+  SummaryHeader,
+  SummaryHeading,
+  SummaryIconWrapper,
   SummaryList,
   SummaryListItem,
+  SummaryTitle,
   SummaryValue,
 } from './styles';
 import type { SummaryCardProps } from './types';
 
 export const SummaryCard = ({
   title,
+  description,
   icon,
   items,
+  tone = 'blue',
   to,
+  linkLabel = 'View details',
 }: SummaryCardProps) => {
   return (
-    <Card data-testid="summary-card">
-      <CardHeader>
-        <IconWrapper aria-hidden="true">{icon}</IconWrapper>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
+    <SummaryCardContainer data-testid="summary-card">
+      <SummaryHeader>
+        <SummaryHeading>
+          <SummaryTitle>{title}</SummaryTitle>
+
+          {description && (
+            <SummaryDescription>
+              {description}
+            </SummaryDescription>
+          )}
+        </SummaryHeading>
+
+        <SummaryIconWrapper
+          $tone={tone}
+          aria-hidden="true"
+        >
+          {icon}
+        </SummaryIconWrapper>
+      </SummaryHeader>
 
       <SummaryList>
-        {items.map((item, index) => (
-          <SummaryListItem
-            key={`${item.label}-${index}`}
-          >
+        {items.map((item) => (
+          <SummaryListItem key={item.label}>
             <span>{item.label}</span>
             <SummaryValue>{item.value}</SummaryValue>
           </SummaryListItem>
@@ -35,10 +53,13 @@ export const SummaryCard = ({
       </SummaryList>
 
       {to && (
-        <NavigationLink to={to}>
-          View details
-        </NavigationLink>
+        <SummaryFooter>
+          <NavigationLink to={to}>
+            {linkLabel}
+            <span aria-hidden="true">→</span>
+          </NavigationLink>
+        </SummaryFooter>
       )}
-    </Card>
+    </SummaryCardContainer>
   );
 };

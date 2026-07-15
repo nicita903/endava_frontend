@@ -1,18 +1,12 @@
-import type { Car } from '../../../api/cars/types';
-import { Button } from '../../../components/Button';
-import { Table } from '../../../components/Table';
-import type { TablePaginationState } from '../../../components/Table/types';
-import type { SelectOption } from '../../../types/common';
-import { TableActions } from '../styles';
+import type { Car } from "../../../api/cars/types";
+import { Button } from "../../../components/Button";
+import { Table } from "../../../components/Table";
+import type { TablePaginationState } from "../../../components/Table/types";
+import type { SelectOption } from "../../../types/common";
+import { TableActions } from "../styles";
 
-import {
-  CAR_PAGE_SIZE_OPTIONS,
-  carColumns,
-} from '../constants';
-import type {
-  CarsFilters,
-  CarsTableRow,
-} from '../types';
+import { CAR_PAGE_SIZE_OPTIONS, carColumns } from "../constants";
+import type { CarsFilters, CarsTableRow } from "../types";
 
 interface CarsTableProps {
   cars: Car[];
@@ -26,7 +20,7 @@ interface CarsTableProps {
   pagination: TablePaginationState;
   onFilterChange: (
     filterName: keyof CarsFilters,
-    value: string | string[]
+    value: string | string[],
   ) => void;
   onPaginationChange: (pagination: TablePaginationState) => void;
   onRetry: () => void;
@@ -57,32 +51,32 @@ export const CarsTable = ({
     ...car,
     ownerName: car.owner.name,
     actions: (
-  <TableActions>
-    <Button
-      type="button"
-      variant="secondary"
-      data-testid={`view-car-${car.id}`}
-      onClick={(event) => {
-        event.stopPropagation();
-        onViewCar(car);
-      }}
-    >
-      View
-    </Button>
+      <TableActions>
+        <Button
+          type="button"
+          variant="secondary"
+          data-testid={`view-car-${car.id}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onViewCar(car);
+          }}
+        >
+          View
+        </Button>
 
-    <Button
-      type="button"
-      variant="secondary"
-      data-testid={`delete-car-${car.id}`}
-      onClick={(event) => {
-        event.stopPropagation();
-        onDeleteCar(car);
-      }}
-    >
-      Delete
-    </Button>
-  </TableActions>
-),
+        <Button
+          type="button"
+          variant="danger"
+          data-testid={`delete-car-${car.id}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onDeleteCar(car);
+          }}
+        >
+          Delete
+        </Button>
+      </TableActions>
+    ),
   }));
 
   return (
@@ -98,35 +92,34 @@ export const CarsTable = ({
       onRetry={onRetry}
       filters={[
         {
-          columnKey: 'make',
-          type: 'radio',
-          name: 'make',
-          label: 'Manufacturer/Brand',
+          columnKey: "make",
+          type: "radio",
+          name: "make",
+          label: "Manufacturer/Brand",
           value: filters.make,
           options: makeOptions,
           showAllOption: true,
-          onChange: (value) => onFilterChange('make', value),
+          onChange: (value) => onFilterChange("make", value),
         },
         {
-          columnKey: 'model',
-          type: 'radio',
-          name: 'model',
-          label: 'Model',
+          columnKey: "model",
+          type: "radio",
+          name: "model",
+          label: "Model",
           value: filters.model,
           options: modelOptions,
           showAllOption: true,
-          onChange: (value) => onFilterChange('model', value),
+          onChange: (value) => onFilterChange("model", value),
         },
         {
-          columnKey: 'category',
-          type: 'radio',
-          name: 'category',
-          label: 'Emission category',
+          columnKey: "category",
+          type: "radio",
+          name: "category",
+          label: "Emission category",
           value: filters.category,
           options: categoryOptions,
           showAllOption: true,
-          onChange: (value) =>
-            onFilterChange('category', value),
+          onChange: (value) => onFilterChange("category", value),
         },
       ]}
       pagination={{

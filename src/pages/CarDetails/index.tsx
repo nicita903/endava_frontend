@@ -1,46 +1,42 @@
-import { useEffect, useId, useState } from 'react';
-import {
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from 'react-router-dom';
+import { useEffect, useId, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import { addCar } from '../../api/cars/addCar';
-import { addCarClaim } from '../../api/cars/addCarClaim';
-import { addCarPolicy } from '../../api/cars/addCarPolicy';
-import { getCar } from '../../api/cars/getCar';
-import { getCarCategories } from '../../api/cars/getCarCategories';
-import { getCarHistory } from '../../api/cars/getCarHistory';
-import type { CarHistoryItem } from '../../api/cars/types';
-import { API_ERROR_MESSAGES } from '../../api/constants';
-import { getApiErrorMessage } from '../../api/errors';
-import { getActivePolicy } from '../../api/policy/getActivePolicy';
-import { Header } from '../../components/Header';
-import { Loading } from '../../components/Loading';
-import { Modal } from '../../components/Modal';
-import type { SelectOption } from '../../types/common';
+import { addCar } from "../../api/cars/addCar";
+import { addCarClaim } from "../../api/cars/addCarClaim";
+import { addCarPolicy } from "../../api/cars/addCarPolicy";
+import { getCar } from "../../api/cars/getCar";
+import { getCarCategories } from "../../api/cars/getCarCategories";
+import { getCarHistory } from "../../api/cars/getCarHistory";
+import type { CarHistoryItem } from "../../api/cars/types";
+import { API_ERROR_MESSAGES } from "../../api/constants";
+import { getApiErrorMessage } from "../../api/errors";
+import { getActivePolicy } from "../../api/policy/getActivePolicy";
+import { Header } from "../../components/Header";
+import { Loading } from "../../components/Loading";
+import { Modal } from "../../components/Modal";
+import type { SelectOption } from "../../types/common";
 
-import { EMPTY_CATEGORY_OPTION } from './constants';
-import { AddPolicyModalForm } from './components/AddPolicyModalForm';
-import { CarDetailsForm } from './components/CarDetailsForm';
-import { ClaimModalForm } from './components/ClaimModalForm';
-import { HistoryModalContent } from './components/HistoryModalContent';
-import { PolicyPanelSection } from './components/PolicyPanelSection';
-import { useCarForm } from './hooks/useCarForm';
-import { useClaimForm } from './hooks/useClaimForm';
-import { usePolicyForm } from './hooks/usePolicyForm';
-import { getOwners } from '../../api/owners/getOwners';
+import { EMPTY_CATEGORY_OPTION } from "./constants";
+import { AddPolicyModalForm } from "./components/AddPolicyModalForm";
+import { CarDetailsForm } from "./components/CarDetailsForm";
+import { ClaimModalForm } from "./components/ClaimModalForm";
+import { HistoryModalContent } from "./components/HistoryModalContent";
+import { PolicyPanelSection } from "./components/PolicyPanelSection";
+import { useCarForm } from "./hooks/useCarForm";
+import { useClaimForm } from "./hooks/useClaimForm";
+import { usePolicyForm } from "./hooks/usePolicyForm";
+import { useOwnersOptions } from "./hooks/useOwnersOptions";
 import {
   CarDetailsErrorType,
   CarDetailsModalType,
   CarDetailsSubmittingType,
   getErrorModalContent,
-} from './state';
+} from "./state";
 import type {
   CarDetailsErrorType as CarDetailsErrorValue,
   CarDetailsModalType as CarDetailsModalValue,
   CarDetailsSubmittingType as CarDetailsSubmittingValue,
-} from './state';
+} from "./state";
 import {
   getAddClaimPayload,
   getAddPolicyPayload,
@@ -49,7 +45,7 @@ import {
   getCategoryFieldOptions,
   getHistoryTableRows,
   getSaveCarPayload,
-} from './utils';
+} from "./utils";
 
 /**
  * Coordinates car creation and car detail workflows.
@@ -60,7 +56,9 @@ export const CarDetails = () => {
   const [searchParams] = useSearchParams();
   const policyTitleId = useId();
   const isViewMode = !!carId;
-  const ownerId = searchParams.get('owner_id') || '';
+  const ownerId = searchParams.get("owner_id") || "";
+  const enabled = !isViewMode && !ownerId;
+  const { ownerOptions, isLoadingOwners } = useOwnersOptions(enabled);
   const {
     errors,
     setValues: setFormValues,
@@ -86,38 +84,24 @@ export const CarDetails = () => {
     validate: validateClaimForm,
     values: claimFormValues,
   } = useClaimForm();
-  const [categoryOptions, setCategoryOptions] = useState<
-    SelectOption[]
-  >([EMPTY_CATEGORY_OPTION]);
-  
-  const [isLoadingCategories, setIsLoadingCategories] =
-    useState(!isViewMode);
-  const [ownerOptions, setOwnerOptions] = useState<
-  SelectOption[]
->([
-  {
-    label: 'Select owner',
-    value: '',
-  },
-]);
+  const [categoryOptions, setCategoryOptions] = useState<SelectOption[]>([
+    EMPTY_CATEGORY_OPTION,
+  ]);
 
-const [isLoadingOwners, setIsLoadingOwners] =
-  useState(!isViewMode);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(!isViewMode);
+
   const [isLoadingData, setIsLoadingData] = useState(isViewMode);
   const [hasActivePolicy, setHasActivePolicy] = useState(false);
-  const [historyItems, setHistoryItems] = useState<
-    CarHistoryItem[]
-  >([]);
+  const [historyItems, setHistoryItems] = useState<CarHistoryItem[]>([]);
   const [modalType, setModalType] = useState<CarDetailsModalValue>(
-    CarDetailsModalType.Hidden
+    CarDetailsModalType.Hidden,
   );
   const [submittingType, setSubmittingType] =
-    useState<CarDetailsSubmittingValue>(
-      CarDetailsSubmittingType.None
-    );
-  const [errorType, setErrorType] =
-    useState<CarDetailsErrorValue>(CarDetailsErrorType.None);
-  const [errorMessage, setErrorMessage] = useState('');
+    useState<CarDetailsSubmittingValue>(CarDetailsSubmittingType.None);
+  const [errorType, setErrorType] = useState<CarDetailsErrorValue>(
+    CarDetailsErrorType.None,
+  );
+  const [errorMessage, setErrorMessage] = useState("");
 
   /**
    * Navigates back to the previous route.
@@ -127,21 +111,19 @@ const [isLoadingOwners, setIsLoadingOwners] =
   /**
    * Opens the add-policy modal.
    */
-  const openAddPolicyModal = () =>
-    setModalType(CarDetailsModalType.AddPolicy);
+  const openAddPolicyModal = () => setModalType(CarDetailsModalType.AddPolicy);
 
   /**
    * Opens the history modal.
    */
-  const openHistoryModal = () =>
-    setModalType(CarDetailsModalType.History);
+  const openHistoryModal = () => setModalType(CarDetailsModalType.History);
 
   /**
    * Clears the current error modal state.
    */
   const hideErrorModal = () => {
     setErrorType(CarDetailsErrorType.None);
-    setErrorMessage('');
+    setErrorMessage("");
   };
 
   /**
@@ -191,7 +173,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
       isCurrentRequest = false;
     };
   }, [isViewMode]);
-  
+
   useEffect(() => {
     if (!isViewMode || !carId) {
       return;
@@ -217,7 +199,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
           return;
         }
 
-        if (carResult.status === 'fulfilled') {
+        if (carResult.status === "fulfilled") {
           if (carResult.value) {
             setFormValues(getCarFormValues(carResult.value));
           }
@@ -225,48 +207,42 @@ const [isLoadingOwners, setIsLoadingOwners] =
           console.error(carResult.reason);
         }
 
-        if (policyResult.status === 'fulfilled') {
+        if (policyResult.status === "fulfilled") {
           setHasActivePolicy(policyResult.value);
         } else {
           console.error(policyResult.reason);
           setHasActivePolicy(false);
         }
 
-        if (historyResult.status === 'fulfilled') {
+        if (historyResult.status === "fulfilled") {
           setHistoryItems(historyResult.value);
         } else {
           console.error(historyResult.reason);
           setHistoryItems([]);
         }
 
-        if (carResult.status === 'rejected') {
+        if (carResult.status === "rejected") {
           setErrorMessage(
-            getApiErrorMessage(
-              carResult.reason,
-              API_ERROR_MESSAGES.GET_CAR
-            )
+            getApiErrorMessage(carResult.reason, API_ERROR_MESSAGES.GET_CAR),
           );
           setErrorType(CarDetailsErrorType.LoadCar);
         } else if (
-          policyResult.status === 'rejected' ||
-          historyResult.status === 'rejected'
+          policyResult.status === "rejected" ||
+          historyResult.status === "rejected"
         ) {
           const policyError =
-            policyResult.status === 'rejected'
+            policyResult.status === "rejected"
               ? policyResult.reason
-              : historyResult.status === 'rejected'
+              : historyResult.status === "rejected"
                 ? historyResult.reason
                 : undefined;
 
           setErrorMessage(
-            getApiErrorMessage(
-              policyError,
-              API_ERROR_MESSAGES.LOAD_POLICY
-            )
+            getApiErrorMessage(policyError, API_ERROR_MESSAGES.LOAD_POLICY),
           );
           setErrorType(CarDetailsErrorType.LoadPolicy);
         } else {
-          setErrorMessage('');
+          setErrorMessage("");
           setErrorType(CarDetailsErrorType.None);
         }
       } finally {
@@ -276,8 +252,6 @@ const [isLoadingOwners, setIsLoadingOwners] =
       }
     };
 
-    
-
     fetchData();
 
     return () => {
@@ -285,53 +259,6 @@ const [isLoadingOwners, setIsLoadingOwners] =
     };
   }, [carId, isViewMode, setFormValues]);
 
-  useEffect(() => {
-  if (isViewMode) {
-    return;
-  }
-
-  let isCurrentRequest = true;
-
-  const fetchOwners = async () => {
-    setIsLoadingOwners(true);
-
-    try {
-      const response = await getOwners({
-        page: 1,
-        per_page: 100,
-      });
-
-      if (!isCurrentRequest) {
-        return;
-      }
-
-      setOwnerOptions([
-        {
-          label: 'Select owner',
-          value: '',
-        },
-        ...response.items.map((owner) => ({
-          label: owner.email
-            ? `${owner.name} (${owner.email})`
-            : owner.name,
-          value: owner.id,
-        })),
-      ]);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      if (isCurrentRequest) {
-        setIsLoadingOwners(false);
-      }
-    }
-  };
-
-  fetchOwners();
-
-  return () => {
-    isCurrentRequest = false;
-  };
-}, [isViewMode]);
 
   /**
    * Closes the add-policy modal unless a submission is running.
@@ -367,33 +294,29 @@ const [isLoadingOwners, setIsLoadingOwners] =
 
     try {
       setSubmittingType(CarDetailsSubmittingType.Policy);
-      setPolicySubmitError('');
+      setPolicySubmitError("");
 
-      await addCarPolicy(
-        carId,
-        getAddPolicyPayload(policyFormValues)
-      );
+      await addCarPolicy(carId, getAddPolicyPayload(policyFormValues));
 
-      const [policyResult, historyResult] =
-        await Promise.allSettled([
-          getActivePolicy(carId),
-          getCarHistory(carId),
-        ]);
+      const [policyResult, historyResult] = await Promise.allSettled([
+        getActivePolicy(carId),
+        getCarHistory(carId),
+      ]);
 
-      if (policyResult.status === 'fulfilled') {
+      if (policyResult.status === "fulfilled") {
         setHasActivePolicy(policyResult.value);
       } else {
         console.error(policyResult.reason);
         setErrorMessage(
           getApiErrorMessage(
             policyResult.reason,
-            API_ERROR_MESSAGES.LOAD_POLICY
-          )
+            API_ERROR_MESSAGES.LOAD_POLICY,
+          ),
         );
         setErrorType(CarDetailsErrorType.LoadPolicy);
       }
 
-      if (historyResult.status === 'fulfilled') {
+      if (historyResult.status === "fulfilled") {
         setHistoryItems(historyResult.value);
       } else {
         console.error(historyResult.reason);
@@ -401,8 +324,8 @@ const [isLoadingOwners, setIsLoadingOwners] =
         setErrorMessage(
           getApiErrorMessage(
             historyResult.reason,
-            API_ERROR_MESSAGES.LOAD_POLICY
-          )
+            API_ERROR_MESSAGES.LOAD_POLICY,
+          ),
         );
         setErrorType(CarDetailsErrorType.LoadPolicy);
       }
@@ -412,7 +335,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
     } catch (error) {
       console.error(error);
       setPolicySubmitError(
-        getApiErrorMessage(error, API_ERROR_MESSAGES.ADD_CAR_POLICY)
+        getApiErrorMessage(error, API_ERROR_MESSAGES.ADD_CAR_POLICY),
       );
     } finally {
       setSubmittingType(CarDetailsSubmittingType.None);
@@ -422,9 +345,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
   /**
    * Handles add-policy form submission.
    */
-  const handleAddPolicySubmit = (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleAddPolicySubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     submitAddPolicy();
   };
@@ -438,17 +359,14 @@ const [isLoadingOwners, setIsLoadingOwners] =
     }
 
     setSubmittingType(CarDetailsSubmittingType.Claim);
-    setClaimBackendError('');
+    setClaimBackendError("");
 
     try {
-      await addCarClaim(
-        carId,
-        getAddClaimPayload(claimFormValues)
-      );
+      await addCarClaim(carId, getAddClaimPayload(claimFormValues));
     } catch (error) {
       console.error(error);
       setClaimBackendError(
-        getApiErrorMessage(error, API_ERROR_MESSAGES.ADD_CAR_CLAIM)
+        getApiErrorMessage(error, API_ERROR_MESSAGES.ADD_CAR_CLAIM),
       );
       setSubmittingType(CarDetailsSubmittingType.None);
 
@@ -463,7 +381,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
       console.error(error);
       setHistoryItems([]);
       setErrorMessage(
-        getApiErrorMessage(error, API_ERROR_MESSAGES.LOAD_POLICY)
+        getApiErrorMessage(error, API_ERROR_MESSAGES.LOAD_POLICY),
       );
       setErrorType(CarDetailsErrorType.LoadPolicy);
     } finally {
@@ -476,9 +394,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
   /**
    * Handles add-claim form submission.
    */
-  const handleClaimSubmit = (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleClaimSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     submitClaim();
   };
@@ -497,9 +413,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
   /**
    * Handles add-car form submission.
    */
-  const handleSubmit = (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (isViewMode) {
@@ -521,9 +435,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
         goBack();
       } catch (error) {
         console.error(error);
-        setErrorMessage(
-          getApiErrorMessage(error, API_ERROR_MESSAGES.ADD_CAR)
-        );
+        setErrorMessage(getApiErrorMessage(error, API_ERROR_MESSAGES.ADD_CAR));
         setErrorType(CarDetailsErrorType.CreateCar);
       } finally {
         setSubmittingType(CarDetailsSubmittingType.None);
@@ -533,20 +445,17 @@ const [isLoadingOwners, setIsLoadingOwners] =
     submitCar();
   };
 
-  const errorModalContent = getErrorModalContent(
-    errorType,
-    errorMessage
-  );
+  const errorModalContent = getErrorModalContent(errorType, errorMessage);
   const historyTableData = getHistoryTableRows(historyItems);
   const categoryFieldOptions = getCategoryFieldOptions(
     formValues.category,
-    categoryOptions
+    categoryOptions,
   );
-  
+
   const modalContent =
     modalType === CarDetailsModalType.AddPolicy
       ? {
-          title: 'Add Policy',
+          title: "Add Policy",
           description: (
             <AddPolicyModalForm
               values={policyFormValues}
@@ -559,23 +468,23 @@ const [isLoadingOwners, setIsLoadingOwners] =
           primaryCta: {
             label:
               submittingType === CarDetailsSubmittingType.Policy
-                ? 'Saving...'
-                : 'Save',
-            form: 'add-car-policy-form',
-            type: 'submit' as const,
+                ? "Saving..."
+                : "Save",
+            form: "add-car-policy-form",
+            type: "submit" as const,
             disabled: isSubmissionInProgress,
           },
           secondaryCta: {
-            label: 'Cancel',
+            label: "Cancel",
             onClick: closeAddPolicyModal,
             disabled: isSubmissionInProgress,
-            variant: 'secondary' as const,
+            variant: "secondary" as const,
           },
           onClose: closeAddPolicyModal,
         }
       : modalType === CarDetailsModalType.Claim
         ? {
-            title: 'Add Claim',
+            title: "Add Claim",
             description: (
               <ClaimModalForm
                 values={claimFormValues}
@@ -589,45 +498,45 @@ const [isLoadingOwners, setIsLoadingOwners] =
             primaryCta: {
               label:
                 submittingType === CarDetailsSubmittingType.Claim
-                  ? 'Saving...'
-                  : 'Save',
-              form: 'add-car-claim-form',
-              type: 'submit' as const,
+                  ? "Saving..."
+                  : "Save",
+              form: "add-car-claim-form",
+              type: "submit" as const,
               disabled: isSubmissionInProgress,
             },
             secondaryCta: {
-              label: 'Cancel',
+              label: "Cancel",
               onClick: closeClaimModal,
               disabled: isSubmissionInProgress,
-              variant: 'secondary' as const,
+              variant: "secondary" as const,
             },
             onClose: closeClaimModal,
           }
-      : modalType === CarDetailsModalType.History
-        ? {
-            title: 'History',
-            width: '960px',
-            description: <HistoryModalContent data={historyTableData} />,
-            secondaryCta: {
-              label: 'Cancel',
-              onClick: hideModal,
-              variant: 'secondary' as const,
-            },
-            onClose: hideModal,
-          }
-      : null;
+        : modalType === CarDetailsModalType.History
+          ? {
+              title: "History",
+              width: "960px",
+              description: <HistoryModalContent data={historyTableData} />,
+              secondaryCta: {
+                label: "Cancel",
+                onClick: hideModal,
+                variant: "secondary" as const,
+              },
+              onClose: hideModal,
+            }
+          : null;
   const modalTestId =
     modalType === CarDetailsModalType.AddPolicy
-      ? 'add-policy-modal'
+      ? "add-policy-modal"
       : modalType === CarDetailsModalType.Claim
-        ? 'add-claim-modal'
+        ? "add-claim-modal"
         : modalType === CarDetailsModalType.History
-          ? 'history-modal'
-          : 'car-details-modal';
+          ? "history-modal"
+          : "car-details-modal";
 
   return (
     <div data-testid="car-details-page">
-      <Header title={isViewMode ? 'View Car' : 'Add Car'} />
+      <Header title={isViewMode ? "View Car" : "Add Car"} />
 
       {isLoadingData ? (
         <Loading message="Loading data..." />
@@ -649,11 +558,10 @@ const [isLoadingOwners, setIsLoadingOwners] =
             errors={errors}
             categoryFieldOptions={categoryFieldOptions}
             isViewMode={isViewMode}
+            ownerId={ownerId}
             isSubmissionInProgress={isSubmissionInProgress}
             isLoadingCategories={isLoadingCategories}
-            isCreatingCar={
-              submittingType === CarDetailsSubmittingType.Car
-            }
+            isCreatingCar={submittingType === CarDetailsSubmittingType.Car}
             onFieldChange={updateField}
             onSubmit={handleSubmit}
             onBack={goBack}
@@ -666,7 +574,7 @@ const [isLoadingOwners, setIsLoadingOwners] =
       <Modal
         isOpen={!!modalContent}
         data-testid={modalTestId}
-        title={modalContent?.title ?? ''}
+        title={modalContent?.title ?? ""}
         width={modalContent?.width}
         description={modalContent?.description}
         primaryCta={modalContent?.primaryCta}
@@ -677,10 +585,10 @@ const [isLoadingOwners, setIsLoadingOwners] =
       <Modal
         isOpen={!!errorModalContent}
         data-testid="car-details-error-modal"
-        title={errorModalContent?.title ?? ''}
-        description={errorModalContent?.description ?? ''}
+        title={errorModalContent?.title ?? ""}
+        description={errorModalContent?.description ?? ""}
         primaryCta={{
-          label: 'OK',
+          label: "OK",
           onClick: hideErrorModal,
         }}
         onClose={hideErrorModal}

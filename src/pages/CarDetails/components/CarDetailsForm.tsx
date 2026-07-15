@@ -1,22 +1,16 @@
-import type { FormEventHandler } from 'react';
+import type { FormEventHandler } from "react";
 
-import { Button } from '../../../components/Button';
-import { CalendarInput } from '../../../components/CalendarInput';
-import { Dropdown } from '../../../components/Dropdown';
-import { Input } from '../../../components/Input';
-import { Loading } from '../../../components/Loading';
-import type { SelectOption } from '../../../types/common';
+import { Button } from "../../../components/Button";
+import { CalendarInput } from "../../../components/CalendarInput";
+import { Dropdown } from "../../../components/Dropdown";
+import { Input } from "../../../components/Input";
+import { Loading } from "../../../components/Loading";
+import type { SelectOption } from "../../../types/common";
 
-import {
-  CAR_FORM_PLACEHOLDERS,
-  EMISSION_CATEGORY_LABEL,
-} from '../constants';
-import { Actions, Form } from '../styles';
-import type {
-  CarFormErrors,
-  CarFormValues,
-} from '../types';
-import type { FieldChangeHandler } from './types';
+import { CAR_FORM_PLACEHOLDERS, EMISSION_CATEGORY_LABEL } from "../constants";
+import { Actions, Form } from "../styles";
+import type { CarFormErrors, CarFormValues } from "../types";
+import type { FieldChangeHandler } from "./types";
 
 interface CarDetailsFormProps {
   categoryFieldOptions: SelectOption[];
@@ -26,6 +20,7 @@ interface CarDetailsFormProps {
   isLoadingCategories: boolean;
   isSubmissionInProgress: boolean;
   isViewMode: boolean;
+  ownerId?:string;
   onBack: () => void;
   onFieldChange: FieldChangeHandler<CarFormValues>;
   onSubmit: FormEventHandler<HTMLFormElement>;
@@ -46,38 +41,39 @@ export const CarDetailsForm = ({
   isViewMode,
   ownerFieldOptions,
   isLoadingOwners,
+  ownerId,
   onBack,
   onFieldChange,
   onSubmit,
 }: CarDetailsFormProps) => (
   <Form
-    data-testid={isViewMode ? 'view-car-form' : 'add-car-form'}
+    data-testid={isViewMode ? "view-car-form" : "add-car-form"}
     onSubmit={onSubmit}
     noValidate
   >
-    {isViewMode ? (
-  <Input
-    name="owner_id"
-    label="Owner ID"
-    value={formValues.owner_id}
-    placeholder={CAR_FORM_PLACEHOLDERS.owner_id}
-    disabled
-    required
-    error={errors.owner_id}
-    onChange={(value) => onFieldChange('owner_id', value)}
-  />
-) : (
-  <Dropdown
-    name="owner_id"
-    label="Owner"
-    value={formValues.owner_id}
-    options={ownerFieldOptions}
-    disabled={isSubmissionInProgress || isLoadingOwners}
-    required
-    error={errors.owner_id}
-    onChange={(value) => onFieldChange('owner_id', value)}
-  />
-)}
+    {isViewMode ||ownerId ? (
+      <Input
+        name="owner_id"
+        label="Owner ID"
+        value={formValues.owner_id}
+        placeholder={CAR_FORM_PLACEHOLDERS.owner_id}
+        disabled
+        required
+        error={errors.owner_id}
+        onChange={(value) => onFieldChange("owner_id", value)}
+      />
+    ) : (
+      <Dropdown
+        name="owner_id"
+        label="Owner"
+        value={formValues.owner_id}
+        options={ownerFieldOptions}
+        disabled={isSubmissionInProgress || isLoadingOwners}
+        required
+        error={errors.owner_id}
+        onChange={(value) => onFieldChange("owner_id", value)}
+      />
+    )}
 
     <Input
       name="vin"
@@ -87,7 +83,7 @@ export const CarDetailsForm = ({
       disabled={isViewMode || isSubmissionInProgress}
       required
       error={errors.vin}
-      onChange={(value) => onFieldChange('vin', value)}
+      onChange={(value) => onFieldChange("vin", value)}
     />
 
     <Input
@@ -97,7 +93,7 @@ export const CarDetailsForm = ({
       placeholder={CAR_FORM_PLACEHOLDERS.make}
       disabled={isViewMode || isSubmissionInProgress}
       error={errors.make}
-      onChange={(value) => onFieldChange('make', value)}
+      onChange={(value) => onFieldChange("make", value)}
     />
 
     <Input
@@ -107,7 +103,7 @@ export const CarDetailsForm = ({
       placeholder={CAR_FORM_PLACEHOLDERS.model}
       disabled={isViewMode || isSubmissionInProgress}
       error={errors.model}
-      onChange={(value) => onFieldChange('model', value)}
+      onChange={(value) => onFieldChange("model", value)}
     />
 
     <CalendarInput
@@ -119,9 +115,7 @@ export const CarDetailsForm = ({
       disabled={isViewMode || isSubmissionInProgress}
       required
       error={errors.year_of_manufacture}
-      onChange={(value) =>
-        onFieldChange('year_of_manufacture', value)
-      }
+      onChange={(value) => onFieldChange("year_of_manufacture", value)}
     />
 
     <Input
@@ -133,7 +127,7 @@ export const CarDetailsForm = ({
       disabled={isViewMode || isSubmissionInProgress}
       required
       error={errors.power}
-      onChange={(value) => onFieldChange('power', value)}
+      onChange={(value) => onFieldChange("power", value)}
     />
 
     <Input
@@ -145,7 +139,7 @@ export const CarDetailsForm = ({
       disabled={isViewMode || isSubmissionInProgress}
       required
       error={errors.cc}
-      onChange={(value) => onFieldChange('cc', value)}
+      onChange={(value) => onFieldChange("cc", value)}
     />
 
     {isViewMode ? (
@@ -156,7 +150,7 @@ export const CarDetailsForm = ({
         placeholder={CAR_FORM_PLACEHOLDERS.category}
         disabled
         error={errors.category}
-        onChange={(value) => onFieldChange('category', value)}
+        onChange={(value) => onFieldChange("category", value)}
       />
     ) : (
       <Dropdown
@@ -166,7 +160,7 @@ export const CarDetailsForm = ({
         options={categoryFieldOptions}
         disabled={isSubmissionInProgress || isLoadingCategories}
         error={errors.category}
-        onChange={(value) => onFieldChange('category', value)}
+        onChange={(value) => onFieldChange("category", value)}
       />
     )}
 
@@ -177,19 +171,17 @@ export const CarDetailsForm = ({
           data-testid="create-car-button"
           disabled={isSubmissionInProgress}
         >
-          {isCreatingCar ? 'Creating...' : 'Create'}
+          {isCreatingCar ? "Creating..." : "Create"}
         </Button>
       )}
       <Button
         type="button"
         variant="secondary"
-        data-testid={
-          isViewMode ? 'back-button' : 'cancel-car-button'
-        }
+        data-testid={isViewMode ? "back-button" : "cancel-car-button"}
         disabled={isSubmissionInProgress}
         onClick={onBack}
       >
-        {isViewMode ? 'Back' : 'Cancel'}
+        {isViewMode ? "Back" : "Cancel"}
       </Button>
     </Actions>
     {isCreatingCar && <Loading message="Creating car..." />}

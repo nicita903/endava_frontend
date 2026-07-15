@@ -197,7 +197,7 @@ const confirmDeleteCar = async () => {
 
     <Button
       type="button"
-      variant="secondary"
+      variant="danger"
       data-testid={`delete-owner-car-${car.id}`}
       onClick={() => openDeleteModal(car)}
     >
